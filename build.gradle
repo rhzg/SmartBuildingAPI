@@ -1,0 +1,18 @@
+apply plugin: 'java'
+
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = 1.8
+
+repositories {
+	mavenCentral()
+	maven {
+		url "https://jcenter.bintray.com"
+	}
+}
+
+
+dependencies {
+	compile('de.fraunhofer.iosb.ilt:FROST-Client:0.18')
+    testCompile "junit:junit:4.11"
+}
+
