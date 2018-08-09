@@ -13,6 +13,7 @@ repositories {
 
 dependencies {
 	compile('de.fraunhofer.iosb.ilt:FROST-Client:0.18')
+    compile 'org.slf4j:slf4j-api:1.7.13'
     testCompile "junit:junit:4.11"
 }
 

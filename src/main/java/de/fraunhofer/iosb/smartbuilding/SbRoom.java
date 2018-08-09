@@ -8,17 +8,20 @@ import java.util.Map;
 import de.fraunhofer.iosb.ilt.sta.ServiceFailureException;
 import de.fraunhofer.iosb.ilt.sta.model.Datastream;
 import de.fraunhofer.iosb.ilt.sta.model.Thing;
+import de.fraunhofer.iosb.ilt.sta.service.SensorThingsService;
 
 // TODO for setter update the Thing object as well
 
 public class SbRoom {
+	private SensorThingsService myService;
 	private Thing myThing;
 	private String roomNr;
 	private int floor;
 	private String token = "undefined";
 	private HashMap<String, SbBeacon> beacons = new HashMap<String, SbBeacon>();
 
-	public SbRoom(Thing thing) {
+	public SbRoom(SensorThingsService service, Thing thing) {
+		myService = service;
 		myThing = thing;
 	}
 
@@ -83,6 +86,6 @@ public class SbRoom {
 		Map<String, Object> props = myThing.getProperties();
 		props.put(SbFactory.TAG_TO_BEACONS_REF, beacons.keySet());
 		myThing.setProperties(props);
-		SbFactory.update(myThing);
+		myService.update(myThing);
 	}
 }

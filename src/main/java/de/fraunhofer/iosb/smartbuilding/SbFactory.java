@@ -54,20 +54,15 @@ public class SbFactory {
 	public static void initialize(SensorThingsService myService) {
 		service = myService;
 	}
-	
-	public static void update (Entity entity) {
-		try {
-			service.update(entity);
-		} catch (ServiceFailureException e) {
-			e.printStackTrace();
-		}
-	}
 
+	/*
+	 * get list of room facade objects of known room things
+	 */
 	public static List<SbRoom> getRoomList() throws ServiceFailureException {
 		EntityList<Thing> things = service.things().query().filter("properties/type eq 'room'").list();
 		List<SbRoom> rooms = new ArrayList<SbRoom>();
 		for (Thing t : things) {
-			SbRoom r = new SbRoom(t);
+			SbRoom r = new SbRoom(service, t);
 			r.setName(t.getName());
 			r.setDescription(t.getDescription());
 			Map<String, Object> p = t.getProperties();
@@ -78,27 +73,32 @@ public class SbFactory {
 		return rooms;
 	}
 
+	/* 
+	 * get list of beacon facade objects for known beacon things
+	 */
 	public static List<SbBeacon> getBeaconList() throws ServiceFailureException {
 		EntityList<Thing> things = service.things().query().filter("properties/type eq 'beacon'").list();
 		List<SbBeacon> beacons = new ArrayList<SbBeacon>();
 		for (Thing t : things) {
-			SbBeacon b = new SbBeacon(t);
+			SbBeacon b = new SbBeacon(service, t);
 			beacons.add(b);
 			beaconCache.put(b.getName(), b);
 		}
 		return beacons;
 	}
 
-	public static SbRoom getRoom(String name) {
+	/*
+	 * look up a room thing from service and returns facade object if found. 
+	 * returns null otherwise
+	 */
+	public static SbRoom findRoom(String name) {
 		SbRoom r = roomCache.get(name);
 		if (r == null) {
 			try {
-				Thing t = service.things().query().filter("properties/type eq 'room' and name eq '" + name + "'").first();
+				Thing t = service.things().query().filter("properties/type eq 'room' and name eq '" + name + "'")
+						.first();
 				if (t != null) {
-					r = new SbRoom(t);
-					Map<String, Object> p = t.getProperties();
-					r.setRoomNr(p.get("roomNr").toString());
-					r.setFloor((Integer) (p.get("floor")));
+					r = new SbRoom(service, t);
 					roomCache.put(r.getName(), r);
 				}
 			} catch (ServiceFailureException e) {
@@ -109,17 +109,30 @@ public class SbFactory {
 		return r;
 	}
 
-	public static SbRoom createSbRoom(String name, String description) throws ServiceFailureException {
+	/*
+	 * look up a room thing from service. Creates new room thing if not found.
+	 * Returns room facade object.
+	 */
+	public static SbRoom findOrCreateSbRoom(String name, String description) {
 		Map<String, Object> props = new HashMap<>();
 		props.put(TAG_TYPE, VALUE_TYPE_ROOM);
 		props.put(TAG_ROOM_NR, name);
-		Thing thing = findOrCreateThing(service, filterProperty(props, TAG_TYPE), name, description, 0, 0, props);
-		SbRoom room = new SbRoom(thing);
+		Thing thing = null;
+		try {
+			thing = findOrCreateThing(service, filterProperty(props, TAG_TYPE), name, description, 0, 0, props);
+		} catch (ServiceFailureException e) {
+			e.printStackTrace();
+		}
+		SbRoom room = new SbRoom(service, thing);
 		roomCache.put(room.getName(), room);
 		return room;
 	}
 
-	public static SbBeacon findOrCreateBeacon(String beaconId, String description) {
+	/*
+	 * look up a beacon thing from service. Creates new beacon object of not found.
+	 * Returns beacon facade object.
+	 */
+	public static SbBeacon findOrCreateSbBeacon(String beaconId, String description) {
 		SbBeacon beacon = beaconCache.get(beaconId);
 		if (beacon == null) { // beacon is not in cache
 			Map<String, Object> props = new HashMap<>();
@@ -128,21 +141,21 @@ public class SbFactory {
 
 			Thing beaconThing;
 			try {
-				beaconThing = findOrCreateThing(service, filterProperty(props, TAG_BEACON_ID), beaconId, description,
-						0, 0, props);
+				beaconThing = findOrCreateThing(service, filterProperty(props, TAG_BEACON_ID), beaconId, description, 0,
+						0, props);
 				Map<String, Object> sensorProperties = new HashMap<>();
 				sensorProperties.put(TAG_BEACON_ID, beaconId);
 				sensorProperties.put(TAG_TYPE, VALUE_TYPE_BEACON);
 
-				Sensor proximitySensor = findOrCreateSensor(service, BEACON_PROXIMITY_SENSOR, "Kontakt.IO proximity sensor",
-						sensorProperties);
+				Sensor proximitySensor = findOrCreateSensor(service, BEACON_PROXIMITY_SENSOR,
+						"Kontakt.IO proximity sensor", sensorProperties);
 				UnitOfMeasurement um1 = new UnitOfMeasurement("Meter", "m",
 						"http://www.qudt.org/qudt/owl/1.0.0/unit/Instances.html/Meter");
 				ObservedProperty op1;
-					op1 = new ObservedProperty("Proximity m",
-							new URI("http://www.qudt.org/qudt/owl/1.0.0/unit/Instances.html/property"), "proximity");
-				Datastream ds1 = findOrCreateDatastream(service, BEACON_PROXIMITY_SENSOR, "Proximity in Meter", null, um1,
-						beaconThing, op1, proximitySensor);
+				op1 = new ObservedProperty("Proximity m",
+						new URI("http://www.qudt.org/qudt/owl/1.0.0/unit/Instances.html/property"), "proximity");
+				Datastream ds1 = findOrCreateDatastream(service, BEACON_PROXIMITY_SENSOR, "Proximity in Meter", null,
+						um1, beaconThing, op1, proximitySensor);
 
 				Sensor batterySensor = findOrCreateSensor(service, BEACON_BATTERY_SENSOR, "Kontakt.IO battery sensor",
 						sensorProperties);
@@ -150,10 +163,10 @@ public class SbFactory {
 						"http://www.qudt.org/qudt/owl/1.0.0/unit/index.html#CountingUnit");
 				ObservedProperty op2 = new ObservedProperty("battery level",
 						new URI("http://www.qudt.org/qudt/owl/1.0.0/unit/index.html#CountingUnit"), "percent");
-				Datastream ds2 = findOrCreateDatastream(service, BEACON_BATTERY_SENSOR, "Battery Level in Percent", null,
-						um2, beaconThing, op2, batterySensor);
+				Datastream ds2 = findOrCreateDatastream(service, BEACON_BATTERY_SENSOR, "Battery Level in Percent",
+						null, um2, beaconThing, op2, batterySensor);
 
-				beacon = new SbBeacon(beaconThing);
+				beacon = new SbBeacon(service, beaconThing);
 				beaconCache.put(beacon.getName(), beacon);
 			} catch (ServiceFailureException | URISyntaxException e) {
 				// TODO Auto-generated catch block
@@ -164,8 +177,9 @@ public class SbFactory {
 		return beacon;
 	}
 
-	// ***************** Helper functions
-	// ********************************************************************************
+	// ***************************************************************************
+	// Helper functions **********************************************************
+	// ***************************************************************************
 
 	public static String quoteForUrl(Object in) {
 		if (in instanceof Number) {
@@ -209,7 +223,7 @@ public class SbFactory {
 		return thing;
 	}
 
-	public static Sensor findOrCreateSensor(SensorThingsService service, String name, String description,
+	private static Sensor findOrCreateSensor(SensorThingsService service, String name, String description,
 			Map<String, Object> properties) throws ServiceFailureException {
 		EntityList<Sensor> sensorList = service.sensors().query().filter("name eq '" + name + "'").list();
 		if (sensorList.size() > 1) {
@@ -227,7 +241,7 @@ public class SbFactory {
 		return sensor;
 	}
 
-	public static Datastream findOrCreateDatastream(SensorThingsService service, String name, String desc,
+	private static Datastream findOrCreateDatastream(SensorThingsService service, String name, String desc,
 			Map<String, Object> properties, UnitOfMeasurement uom, Thing t, ObservedProperty op, Sensor s)
 			throws ServiceFailureException {
 		EntityList<Datastream> datastreamList = service.datastreams().query()
