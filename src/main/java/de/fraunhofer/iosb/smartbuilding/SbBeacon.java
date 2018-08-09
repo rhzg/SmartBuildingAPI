@@ -40,17 +40,17 @@ public class SbBeacon {
 
 	public void assignRoom(String roomName) throws ServiceFailureException {
 		if (myRoom == null) {
-			SbRoom room = SbFactory.findRoom(roomName);
+			myRoom = SbFactory.findRoom(roomName);
 		}
 		Map<String, Object> props = myBeaconThing.getProperties();
 		String assignedRoom = props.get(SbFactory.TAG_TO_ROOM_REF).toString();
 
 		if (!assignedRoom.equals(roomName)) {
-		props.put(SbFactory.TAG_TO_ROOM_REF, myRoom.getMyThing().getId());
-		myBeaconThing.setProperties(props);
-		myService.update(myBeaconThing);
-		myRoom.assignBeacon(this);
-		myRoom = myRoom;
+			props.put(SbFactory.TAG_TO_ROOM_REF, myRoom.getMyThing().getId());
+			myBeaconThing.setProperties(props);
+			myService.update(myBeaconThing);
+			myRoom.assignBeacon(this);
+			myRoom = myRoom;
 		}
 	}
 }
