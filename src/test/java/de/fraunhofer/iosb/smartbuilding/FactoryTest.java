@@ -59,6 +59,14 @@ public class FactoryTest {
 			result = room.getDescription();
 			result = room.getToken();
 			result = room.getRoomNr();
+			int floor = room.getFloor();
+			assertTrue(floor == 0);
+			room.setFloor(99);
+			floor = room.getFloor();
+			assertTrue(floor == 99);
+			room.setFloor(0);
+			floor = room.getFloor();
+			assertTrue(floor == 0);
 			
 			room = SbFactory.findRoom("XYZ000");
 			assertNull("romm object should not be found",room);

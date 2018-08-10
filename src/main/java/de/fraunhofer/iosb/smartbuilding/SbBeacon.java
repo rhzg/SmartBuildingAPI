@@ -3,7 +3,7 @@ package de.fraunhofer.iosb.smartbuilding;
 import java.util.Map;
 
 import de.fraunhofer.iosb.ilt.sta.ServiceFailureException;
-import de.fraunhofer.iosb.ilt.sta.model.Datastream;
+import de.fraunhofer.iosb.ilt.sta.model.Id;
 import de.fraunhofer.iosb.ilt.sta.model.Thing;
 import de.fraunhofer.iosb.ilt.sta.service.SensorThingsService;
 
@@ -13,7 +13,6 @@ public class SbBeacon {
 	private SensorThingsService myService;
 
 	public SbBeacon(SensorThingsService service, Thing thing) {
-		// TODO Auto-generated constructor stub
 		myRoom = null;
 		myBeaconThing = thing;
 		myService = service;
@@ -21,6 +20,10 @@ public class SbBeacon {
 
 	public String toString() {
 		return "BLE Beacon: " + getName() + " " + getDescription();
+	}
+
+	public Id getId() {
+		return myBeaconThing.getId();
 	}
 
 	public String getName() {
@@ -42,15 +45,26 @@ public class SbBeacon {
 		if (myRoom == null) {
 			myRoom = SbFactory.findRoom(roomName);
 		}
-		Map<String, Object> props = myBeaconThing.getProperties();
-		String assignedRoom = props.get(SbFactory.TAG_TO_ROOM_REF).toString();
-
-		if (!assignedRoom.equals(roomName)) {
-			props.put(SbFactory.TAG_TO_ROOM_REF, myRoom.getMyThing().getId());
-			myBeaconThing.setProperties(props);
+		Map<String, Object> properties = myBeaconThing.getProperties();
+		Id assignedRoom = Id.tryToParse(properties.get(SbFactory.TAG_TO_ROOM_REF).toString());
+//		Object o = properties.get(SbFactory.TAG_TO_ROOM_REF);
+//		Id assignedRoom;
+//		if (o != null) {
+//			assignedRoom = (Id) o;
+//		} else {
+//			if (myBeaconThing.getId() instanceof IdLong) {
+//				assignedRoom = new IdLong(-1L);
+//			} else if (myBeaconThing.getId() instanceof IdString) {
+//				assignedRoom = new IdString("-1");
+//			} else { // unknown Id, just IdString instead
+//				assignedRoom = new IdString("-1");
+//			}
+//		}
+		if ((assignedRoom == null) || (!assignedRoom.equals(myRoom.getMyThing().getId()))) {
+			properties.put(SbFactory.TAG_TO_ROOM_REF, myRoom.getMyThing().getId());
+			myBeaconThing.setProperties(properties);
 			myService.update(myBeaconThing);
 			myRoom.assignBeacon(this);
-			myRoom = myRoom;
 		}
 	}
 }
