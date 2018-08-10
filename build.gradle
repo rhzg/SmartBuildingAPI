@@ -1,15 +1,13 @@
 apply plugin: 'java'
+apply plugin: 'maven'
 
 version = '0.0.1-SNAPSHOT'
+project.group = 'de.fraunhofer.iosb'
 sourceCompatibility = 1.8
 
 repositories {
-	mavenCentral()
-	maven {
-		url "https://jcenter.bintray.com"
-	}
+	mavenLocal()
 }
-
 
 dependencies {
 	compile('de.fraunhofer.iosb.ilt:FROST-Client:0.18')
