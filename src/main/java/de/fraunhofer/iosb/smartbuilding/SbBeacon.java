@@ -57,7 +57,7 @@ public class SbBeacon {
         return "undefined";
     }
 
-    public void assignRoom(String roomName) throws ServiceFailureException {
+    public void assignRoom(String roomName) {
         myRoom = SbFactory.findRoom(roomName);
         Map<String, Object> properties = myBeaconThing.getProperties();
         Object roomRef = properties.get(SbFactory.TAG_TO_ROOM_REF);
@@ -69,7 +69,11 @@ public class SbBeacon {
         if ((assignedRoom == null) || (!assignedRoom.equals(myRoom.getMyThing().getId()))) {
             properties.put(SbFactory.TAG_TO_ROOM_REF, myRoom.getMyThing().getId());
             myBeaconThing.setProperties(properties);
-            myService.update(myBeaconThing);
+            try {
+                myService.update(myBeaconThing);
+            } catch (ServiceFailureException e) {
+                e.printStackTrace();
+            }
             myRoom.assignBeacon(this);
         }
     }

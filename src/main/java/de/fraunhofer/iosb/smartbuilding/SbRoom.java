@@ -105,7 +105,7 @@ public class SbRoom {
 	}
 		
 	@SuppressWarnings("unchecked")
-	public void assignBeacon(SbBeacon beacon) throws ServiceFailureException {
+	public void assignBeacon(SbBeacon beacon)  {
 		if (!beaconsCache.containsKey(beacon.getName())) {
 			beaconsCache.put(beacon.getName(), beacon);
 			Map<String, Object> properties = myThing.getProperties();
@@ -128,7 +128,12 @@ public class SbRoom {
 				beaconRefs.add(beacon.getId());
 				properties.put(SbFactory.TAG_TO_BEACONS_REF, beaconRefs);
 				myThing.setProperties(properties);
-				myService.update(myThing);
+				try {
+                    myService.update(myThing);
+                } catch (ServiceFailureException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
 			}
 			beacon.assignRoom(getName());
 		}
