@@ -47,6 +47,9 @@ public class SbFactory {
     static final String TAG_FLOOR = "floor";
 
     static final String TAG_BEACON_ID = "beaconId";
+    static final String TAG_UUID_ID = "proximityUUID";
+    static final String TAG_MAJOR_ID = "major";
+    static final String TAG_MINOR_ID = "minor";
     static final String TAG_TO_BEACONS_REF = "@toBeacons";
     static final String TAG_TO_ROOM_REF = "@toRoom";
     static final String VALUE_TYPE_BEACON = "beacon";
@@ -58,6 +61,9 @@ public class SbFactory {
     private static final String VALUE_TYPE_OUTSIDE = "outside";
     private static final String VALUE_TYPE_SENSOR = "sensor";
     private static final String VALUE_TYPE_SENSORTYPE = "sensorType";
+    
+    private static final double LAT_DEF = 49.015484;
+    private static final double LONG_DEF = 8.425224;
 
     static SensorThingsService service;
     private static HashMap<String, SbBeacon> beaconCache = new HashMap<String, SbBeacon>();
@@ -75,13 +81,9 @@ public class SbFactory {
         List<SbRoom> rooms = new ArrayList<SbRoom>();
         for (Thing t : things) {
             SbRoom r = new SbRoom(service, t);
-            r.setName(t.getName());
-            r.setDescription(t.getDescription());
-            Map<String, Object> p = t.getProperties();
-            r.setRoomNr(p.get("roomNr").toString());
-            r.setFloor((Integer) (p.get("floor")));
             rooms.add(r);
         }
+        LOGGER.trace("{} rooms found", rooms.size());
         return rooms;
     }
 
@@ -103,6 +105,7 @@ public class SbFactory {
                 beaconCache.put(b.getName(), b);
             }
         }
+        LOGGER.trace("{} beacons found", beacons.size());
         return beacons;
     }
 
@@ -119,15 +122,18 @@ public class SbFactory {
                 if (t != null) {
                     r = new SbRoom(service, t);
                     roomCache.put(r.getName(), r);
+                    LOGGER.trace("rooms loaded");
                 }
             } catch (ServiceFailureException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }
+        } else {
+            LOGGER.trace("room found in cache");
         }
         return r;
     }
-    
+
     /*
      * look up a room thing from service. Creates new room thing if not found.
      * Returns room facade object.
@@ -138,12 +144,13 @@ public class SbFactory {
         props.put(TAG_ROOM_NR, name);
         Thing thing = null;
         try {
-            thing = findOrCreateThing(service, filterProperty(props, TAG_TYPE), name, description, 0, 0, props);
+            thing = findOrCreateThing(service, filterProperty(props, TAG_ROOM_NR), name, description, 0, 0, props);
         } catch (ServiceFailureException e) {
             e.printStackTrace();
         }
         SbRoom room = new SbRoom(service, thing);
         roomCache.put(room.getName(), room);
+        LOGGER.trace("room {} found or created", name);
         return room;
     }
 
@@ -160,8 +167,7 @@ public class SbFactory {
 
             Thing beaconThing;
             try {
-                beaconThing = findOrCreateThing(service, filterProperty(props, TAG_BEACON_ID), beaconId, description, 0,
-                        0, props);
+                beaconThing = findOrCreateThing(service, filterProperty(props, TAG_BEACON_ID), beaconId, description, LAT_DEF, LONG_DEF, props);
                 Map<String, Object> sensorProperties = new HashMap<>();
                 sensorProperties.put(TAG_BEACON_ID, beaconId);
                 sensorProperties.put(TAG_TYPE, VALUE_TYPE_BEACON);
@@ -186,11 +192,51 @@ public class SbFactory {
                         null, um2, beaconThing, op2, batterySensor);
 
                 beacon = new SbBeacon(service, beaconThing);
+                beacon.setBatteryDatastream (ds1);
+                beacon.setProximityDatastream (ds2);
                 beaconCache.put(beacon.getName(), beacon);
             } catch (ServiceFailureException | URISyntaxException e) {
-                // TODO Auto-generated catch block
                 e.printStackTrace();
             }
+            LOGGER.trace("beacon {} found or created", beaconId);
+        } else {
+            LOGGER.trace("beacon {} found in cache", beaconId);
+        }
+        return beacon;
+    }
+
+    public static SbBeacon findByMajorMinor(String major, String minor) {
+        SbBeacon beacon = null;
+        for (SbBeacon b : beaconCache.values()) {
+            if (b.getMajor().equalsIgnoreCase(major) && b.getMinor().equalsIgnoreCase(minor)) {
+                beacon = b;
+                break;
+            }
+        }
+        if (beacon == null) {
+            String filter;
+            filter = "properties/major eq '" + major + "' and properties/minor eq '" + minor + "'";
+            EntityList<Thing> thingList;
+            try {
+                thingList = service.things().query().filter(filter).list();
+            } catch (ServiceFailureException e) {
+                e.printStackTrace();
+                return null;
+            }
+            if (thingList.size() > 1) {
+                throw new IllegalStateException("More than one thing found with filter " + filter);
+            }
+            Thing thing;
+            if (thingList.size() == 1) {
+                thing = thingList.iterator().next();
+                beacon = new SbBeacon(service, thing);
+                beaconCache.put(beacon.getName(), beacon);
+                LOGGER.trace("BLE major:{}, minor:{} loaded", major, minor);
+            } else {
+                LOGGER.trace("BLE major:{}, minor:{} not found", major, minor);
+            }
+        } else {
+            LOGGER.trace("BLE major:{}, minor:{} found in cache", major, minor);
 
         }
         return beacon;
@@ -263,7 +309,7 @@ public class SbFactory {
     private static Datastream findOrCreateDatastream(SensorThingsService service, String name, String desc,
             Map<String, Object> properties, UnitOfMeasurement uom, Thing t, ObservedProperty op, Sensor s)
             throws ServiceFailureException {
-        EntityList<Datastream> datastreamList = service.datastreams().query()
+        EntityList<Datastream> datastreamList = t.datastreams().query()
                 .filter("name eq '" + Utils.escapeForStringConstant(name) + "'").list();
         if (datastreamList.size() > 1) {
             throw new IllegalStateException("More than one datastream with name " + name);

@@ -15,18 +15,29 @@ limitations under the License.
 
 package de.fraunhofer.iosb.smartbuilding;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import de.fraunhofer.iosb.ilt.sta.ServiceFailureException;
+import de.fraunhofer.iosb.ilt.sta.dao.BaseDao;
+import de.fraunhofer.iosb.ilt.sta.model.Datastream;
 import de.fraunhofer.iosb.ilt.sta.model.Id;
+import de.fraunhofer.iosb.ilt.sta.model.Observation;
 import de.fraunhofer.iosb.ilt.sta.model.Thing;
 import de.fraunhofer.iosb.ilt.sta.service.SensorThingsService;
 
 public class SbBeacon {
+    private static final Logger LOGGER = LoggerFactory.getLogger(SbBeacon.class);
+
     private SbRoom myRoom;
     private Thing myBeaconThing;
     private SensorThingsService myService;
+    private Datastream proximityDatastream;
+    private Datastream batteryDatastream;
 
     public SbBeacon(SensorThingsService service, Thing thing) {
         myRoom = null;
@@ -57,6 +68,30 @@ public class SbBeacon {
         return "undefined";
     }
 
+    public void setIBeaconId(String uuid, String major, String minor) {
+        Map<String, Object> properties = myBeaconThing.getProperties();
+        properties.put(SbFactory.TAG_UUID_ID, uuid);
+        properties.put(SbFactory.TAG_MAJOR_ID, major);
+        properties.put(SbFactory.TAG_MINOR_ID, minor);
+        try {
+            myService.update(myBeaconThing);
+        } catch (ServiceFailureException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public String getUUID() {
+        return myBeaconThing.getProperties().get(SbFactory.TAG_UUID_ID).toString();
+    }
+
+    public String getMajor() {
+        return myBeaconThing.getProperties().get(SbFactory.TAG_MAJOR_ID).toString();
+    }
+
+    public String getMinor() {
+        return myBeaconThing.getProperties().get(SbFactory.TAG_MINOR_ID).toString();
+    }
+
     public void assignRoom(String roomName) {
         myRoom = SbFactory.findRoom(roomName);
         Map<String, Object> properties = myBeaconThing.getProperties();
@@ -75,6 +110,34 @@ public class SbBeacon {
                 e.printStackTrace();
             }
             myRoom.assignBeacon(this);
+            LOGGER.trace("room {} assigned to beacon {}", roomName, myBeaconThing.getName());
         }
+    }
+
+    public void addProximityObservation(double distance, String usercode) {
+        Map<String, Object> stringMap = new HashMap<>();
+        stringMap.put("user", usercode);
+
+        try {
+            if (proximityDatastream == null) {
+                proximityDatastream = myBeaconThing.datastreams().query()
+                        .filter("name eq '" + SbFactory.BEACON_PROXIMITY_SENSOR + "'").first();
+            }
+            Observation o = new Observation(distance, proximityDatastream);
+            o.setParameters(stringMap);
+            myService.create(o);
+        } catch (ServiceFailureException e) {
+            e.printStackTrace();
+        }
+        LOGGER.trace("Proximity obseration for {}", usercode);
+    }
+
+    public void setBatteryDatastream(Datastream ds) {
+        proximityDatastream = ds;
+
+    }
+
+    public void setProximityDatastream(Datastream ds) {
+        batteryDatastream = ds;
     }
 }

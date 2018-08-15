@@ -32,6 +32,26 @@ public class FactoryTest {
     }
 
     @Test
+    public void testCreateBeacons() {
+        SbBeacon beacon = SbFactory.findOrCreateSbBeacon("BLE0815", "test beacon");
+        String s = beacon.toString();
+        assertNotNull("room object should have a string representation", s);
+        SbBeacon beacon2 = SbFactory.findOrCreateSbBeacon("BLE0815", "dummy");
+        assertTrue(beacon == beacon2);
+    }
+
+    @Test
+    public void testCreateRooms() {
+        SbRoom s012 = SbFactory.findOrCreateSbRoom("S012", "Office hzg");
+        SbRoom s011 = SbFactory.findOrCreateSbRoom("S011", "Office scf");
+        SbRoom s015 = SbFactory.findOrCreateSbRoom("S015", "HIWI Team Room");
+        assertNotNull("room object should have been created", s011);
+        assertNotNull("room object should have been created", s012);
+        assertNotNull("room object should have been created", s015);
+    }
+
+
+    @Test
     public void testGetRoomList() {
         try {
             List<SbRoom> rooms = SbFactory.getRoomList();
@@ -69,9 +89,8 @@ public class FactoryTest {
             result = room.getDescription();
             result = room.getToken();
             result = room.getRoomNr();
-            int floor = room.getFloor();
-            assertTrue(floor == 0);
             room.setFloor(99);
+            int floor = room.getFloor();
             floor = room.getFloor();
             assertTrue(floor == 99);
             room.setFloor(0);
@@ -86,15 +105,6 @@ public class FactoryTest {
         ServiceFailureException e) {
             e.printStackTrace();
         }
-    }
-
-    @Test
-    public void testCreateBeacon() {
-        SbBeacon beacon = SbFactory.findOrCreateSbBeacon("BLE0815", "test beacon");
-        String s = beacon.toString();
-        assertNotNull("room object should have a string representation", s);
-        SbBeacon beacon2 = SbFactory.findOrCreateSbBeacon("BLE0815", "dummy");
-        assertTrue(beacon == beacon2);
     }
 
     @Test
