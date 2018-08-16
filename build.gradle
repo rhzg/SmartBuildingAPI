@@ -14,9 +14,9 @@ repositories {
 dependencies {
 	compile('de.fraunhofer.iosb.ilt:FROST-Client:0.18')
     compile 'org.slf4j:slf4j-api:1.7.7'
-    compile group: 'ch.qos.logback', name: 'logback-core', version: '1.1.3'
+    compile group: 'ch.qos.logback', name: 'logback-core', version: '1.1.11'
     
     testCompile group: 'junit', name: 'junit', version: '4.11'
-    testCompile group: 'ch.qos.logback', name: 'logback-classic', version: '1.1.3'
+    testCompile group: 'ch.qos.logback', name: 'logback-classic', version: '1.1.11'
 }
 
