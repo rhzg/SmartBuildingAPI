@@ -81,16 +81,31 @@ public class SbBeacon {
     }
 
     public String getUUID() {
-        return myBeaconThing.getProperties().get(SbFactory.TAG_UUID_ID).toString();
+        Object o = myBeaconThing.getProperties().get(SbFactory.TAG_UUID_ID);
+        if (o != null) {
+            return o.toString();
+        } else {
+            return "unknown";
+        }
     }
 
     public String getMajor() {
-        return myBeaconThing.getProperties().get(SbFactory.TAG_MAJOR_ID).toString();
+        Object o = myBeaconThing.getProperties().get(SbFactory.TAG_MAJOR_ID);
+        if (o != null) {
+            return o.toString();
+        } else {
+            return "unknown";
+        }
     }
 
     public String getMinor() {
-        return myBeaconThing.getProperties().get(SbFactory.TAG_MINOR_ID).toString();
-    }
+        Object o = myBeaconThing.getProperties().get(SbFactory.TAG_MINOR_ID);
+        if (o != null) {
+            return o.toString();
+        } else {
+            return "unknown";
+        }
+   }
 
     public void assignRoom(String roomName) {
         myRoom = SbFactory.findRoom(roomName);

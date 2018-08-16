@@ -29,6 +29,7 @@ import org.slf4j.LoggerFactory;
 import de.fraunhofer.iosb.ilt.sta.ServiceFailureException;
 import de.fraunhofer.iosb.ilt.sta.Utils;
 import de.fraunhofer.iosb.ilt.sta.model.Datastream;
+import de.fraunhofer.iosb.ilt.sta.model.Id;
 import de.fraunhofer.iosb.ilt.sta.model.Location;
 import de.fraunhofer.iosb.ilt.sta.model.ObservedProperty;
 import de.fraunhofer.iosb.ilt.sta.model.Sensor;
@@ -61,7 +62,7 @@ public class SbFactory {
     private static final String VALUE_TYPE_OUTSIDE = "outside";
     private static final String VALUE_TYPE_SENSOR = "sensor";
     private static final String VALUE_TYPE_SENSORTYPE = "sensorType";
-    
+
     private static final double LAT_DEF = 49.015484;
     private static final double LONG_DEF = 8.425224;
 
@@ -122,16 +123,39 @@ public class SbFactory {
                 if (t != null) {
                     r = new SbRoom(service, t);
                     roomCache.put(r.getName(), r);
-                    LOGGER.trace("rooms loaded");
+                    LOGGER.trace("room {} loaded", r.getName());
                 }
             } catch (ServiceFailureException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }
         } else {
-            LOGGER.trace("room found in cache");
+            LOGGER.trace("room {} found in cache", r.getName());
         }
         return r;
+    }
+
+    /*
+     * lockup beacon by id and return facade object if found. Return null otherwise
+     */
+    public static SbBeacon findBeacon(Id id) {
+        SbBeacon b = beaconCache.get(id.toString());
+        if (b == null) {
+            try {
+                Thing t = service.things().find(id);
+                if (t != null) {
+                    b = new SbBeacon(service, t);
+                    beaconCache.put(b.getName(), b);
+                    LOGGER.trace("beacon {} loaded", b.getName());
+                }
+            } catch (ServiceFailureException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        } else {
+            LOGGER.trace("beacon {} found in cache", b.getName());
+        }
+        return b;
     }
 
     /*
@@ -167,7 +191,8 @@ public class SbFactory {
 
             Thing beaconThing;
             try {
-                beaconThing = findOrCreateThing(service, filterProperty(props, TAG_BEACON_ID), beaconId, description, LAT_DEF, LONG_DEF, props);
+                beaconThing = findOrCreateThing(service, filterProperty(props, TAG_BEACON_ID), beaconId, description,
+                        LAT_DEF, LONG_DEF, props);
                 Map<String, Object> sensorProperties = new HashMap<>();
                 sensorProperties.put(TAG_BEACON_ID, beaconId);
                 sensorProperties.put(TAG_TYPE, VALUE_TYPE_BEACON);
@@ -192,8 +217,8 @@ public class SbFactory {
                         null, um2, beaconThing, op2, batterySensor);
 
                 beacon = new SbBeacon(service, beaconThing);
-                beacon.setBatteryDatastream (ds1);
-                beacon.setProximityDatastream (ds2);
+                beacon.setBatteryDatastream(ds1);
+                beacon.setProximityDatastream(ds2);
                 beaconCache.put(beacon.getName(), beacon);
             } catch (ServiceFailureException | URISyntaxException e) {
                 e.printStackTrace();
@@ -204,7 +229,19 @@ public class SbFactory {
         }
         return beacon;
     }
+    
+    /*
+     * Convenience method to find or create beacons 
+     */
+    public static SbBeacon findOrCreateSbBeacon(String beaconId, String description, String uuid, String major, String minor) {
+        SbBeacon beacon = findOrCreateSbBeacon(beaconId, description);
+        beacon.setIBeaconId(uuid, major, minor);
+        return beacon;
+    }
 
+    /*
+     * find beacon if major and minor id is unique
+     */
     public static SbBeacon findByMajorMinor(String major, String minor) {
         SbBeacon beacon = null;
         for (SbBeacon b : beaconCache.values()) {
@@ -242,6 +279,46 @@ public class SbFactory {
         return beacon;
     }
 
+    
+    /*
+     * find beacon by unique UUID
+     */
+    public static SbBeacon findByUUID(String uuid) {
+        SbBeacon beacon = null;
+        for (SbBeacon b : beaconCache.values()) {
+            if (b.getUUID().equalsIgnoreCase(uuid)) {
+                beacon = b;
+                break;
+            }
+        }
+        if (beacon == null) {
+            String filter;
+            filter = "properties/" + TAG_UUID_ID + " eq '" + uuid+ "'";
+            EntityList<Thing> thingList;
+            try {
+                thingList = service.things().query().filter(filter).list();
+            } catch (ServiceFailureException e) {
+                e.printStackTrace();
+                return null;
+            }
+            if (thingList.size() > 1) {
+                throw new IllegalStateException("More than one thing found with filter " + filter);
+            }
+            Thing thing;
+            if (thingList.size() == 1) {
+                thing = thingList.iterator().next();
+                beacon = new SbBeacon(service, thing);
+                beaconCache.put(beacon.getName(), beacon);
+                LOGGER.trace("BLE uuid:{} loaded", uuid);
+            } else {
+                LOGGER.trace("BLE uuid:{} not found", uuid);
+            }
+        } else {
+            LOGGER.trace("BLE uuid:{} found in cache", uuid);
+        }
+        return beacon;
+    }
+    
     // ***************************************************************************
     // Helper functions **********************************************************
     // ***************************************************************************
