@@ -28,7 +28,7 @@ public class CreateBeaconsTest {
     }
 
     @Test
-    public void testCreateBeacons() {
+    public void testCreateRoomsAndBeacons() {
         SbRoom s012 = SbFactory.findOrCreateSbRoom("S012", "Office Reinhard Herzog");
         SbBeacon b012 = SbFactory.findOrCreateSbBeacon("1y0N", "Office hzg");
         b012.setIBeaconId("f7826da6-4fa2-4e98-8024-bc5b71e0893e", "2970", "10793");
@@ -60,11 +60,15 @@ public class CreateBeaconsTest {
         SbFactory.findOrCreateSbBeacon("XrxW", "", "f7826da6-4fa2-4e98-8024-bc5b71e0893e", "65085", "35435");
         SbFactory.findOrCreateSbBeacon("8ACi", "", "f7826da6-4fa2-4e98-8024-bc5b71e0893e", "55692", "22904");
         SbFactory.findOrCreateSbBeacon("Q8dr", "", "f7826da6-4fa2-4e98-8024-bc5b71e0893e", "55542", "14675");
+        
+        assertNotNull("room object should have been created", s011);
+        assertNotNull("room object should have been created", s012);
+        assertNotNull("room object should have been created", s015);
     }
 
     @Test
     public void testFindBeacons() {
-        SbBeacon b = SbFactory.findByMajorMinor("2970", "10793");
+        SbBeacon b = SbFactory.findByBeaconIds("f7826da6-4fa2-4e98-8024-bc5b71e0893e", "2970", "10793");
         assertNotNull("beacon should have been found", b);
     }
 
@@ -73,7 +77,7 @@ public class CreateBeaconsTest {
         SbBeacon b012 = SbFactory.findOrCreateSbBeacon("1y0N", "Office hzg");
         b012.setIBeaconId("f7826da6-4fa2-4e98-8024-bc5b71e0893e", "2970", "10793");
 
-        SbBeacon b012ToBeFound = SbFactory.findByMajorMinor("2970", "10793");
+        SbBeacon b012ToBeFound = SbFactory.findByBeaconIds("f7826da6-4fa2-4e98-8024-bc5b71e0893e", "2970", "10793");
         assertTrue(b012 == b012ToBeFound);
         b012ToBeFound.addProximityObservation(0.1, "JUNIT Tester");
     }

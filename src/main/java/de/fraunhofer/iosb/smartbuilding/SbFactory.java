@@ -229,11 +229,12 @@ public class SbFactory {
         }
         return beacon;
     }
-    
+
     /*
-     * Convenience method to find or create beacons 
+     * Convenience method to find or create beacons
      */
-    public static SbBeacon findOrCreateSbBeacon(String beaconId, String description, String uuid, String major, String minor) {
+    public static SbBeacon findOrCreateSbBeacon(String beaconId, String description, String uuid, String major,
+            String minor) {
         SbBeacon beacon = findOrCreateSbBeacon(beaconId, description);
         beacon.setIBeaconId(uuid, major, minor);
         return beacon;
@@ -242,7 +243,7 @@ public class SbFactory {
     /*
      * find beacon if major and minor id is unique
      */
-    public static SbBeacon findByMajorMinor(String major, String minor) {
+    public static SbBeacon findByBeaconIds(String uuid, String major, String minor) {
         SbBeacon beacon = null;
         for (SbBeacon b : beaconCache.values()) {
             if (b.getMajor().equalsIgnoreCase(major) && b.getMinor().equalsIgnoreCase(minor)) {
@@ -252,7 +253,7 @@ public class SbFactory {
         }
         if (beacon == null) {
             String filter;
-            filter = "properties/major eq '" + major + "' and properties/minor eq '" + minor + "'";
+            filter = "properties/" + SbFactory.TAG_MAJOR_ID + " eq '" + major + "' and properties/" + SbFactory.TAG_MINOR_ID + " eq '" + minor + "' and properties/" + SbFactory.TAG_UUID_ID + " eq '" + uuid + "'";
             EntityList<Thing> thingList;
             try {
                 thingList = service.things().query().filter(filter).list();
@@ -279,7 +280,6 @@ public class SbFactory {
         return beacon;
     }
 
-    
     /*
      * find beacon by unique UUID
      */
@@ -293,7 +293,7 @@ public class SbFactory {
         }
         if (beacon == null) {
             String filter;
-            filter = "properties/" + TAG_UUID_ID + " eq '" + uuid+ "'";
+            filter = "properties/" + TAG_UUID_ID + " eq '" + uuid + "'";
             EntityList<Thing> thingList;
             try {
                 thingList = service.things().query().filter(filter).list();
@@ -318,7 +318,7 @@ public class SbFactory {
         }
         return beacon;
     }
-    
+
     // ***************************************************************************
     // Helper functions **********************************************************
     // ***************************************************************************

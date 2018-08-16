@@ -32,26 +32,6 @@ public class FactoryTest {
     }
 
     @Test
-    public void testCreateBeacons() {
-        SbBeacon beacon = SbFactory.findOrCreateSbBeacon("BLE0815", "test beacon");
-        String s = beacon.toString();
-        assertNotNull("room object should have a string representation", s);
-        SbBeacon beacon2 = SbFactory.findOrCreateSbBeacon("BLE0815", "dummy");
-        assertTrue(beacon == beacon2);
-    }
-
-    @Test
-    public void testCreateRooms() {
-        SbRoom s012 = SbFactory.findOrCreateSbRoom("S012", "Office hzg");
-        SbRoom s011 = SbFactory.findOrCreateSbRoom("S011", "Office scf");
-        SbRoom s015 = SbFactory.findOrCreateSbRoom("S015", "HIWI Team Room");
-        assertNotNull("room object should have been created", s011);
-        assertNotNull("room object should have been created", s012);
-        assertNotNull("room object should have been created", s015);
-    }
-
-
-    @Test
     public void testGetRoomList() {
         try {
             List<SbRoom> rooms = SbFactory.getRoomList();
@@ -109,19 +89,25 @@ public class FactoryTest {
 
     @Test
     public void testAssignBeaconToRoom() throws ServiceFailureException {
-        SbBeacon b0815 = SbFactory.findOrCreateSbBeacon("BLE0815", "test beacon");
-        SbBeacon b0816 = SbFactory.findOrCreateSbBeacon("BLE0816", "test beacon");
-        SbRoom s012 = SbFactory.findRoom("S012");
-        SbRoom s011 = SbFactory.findRoom("S011");
-        s012.assignBeacon(b0815);
-        s012.assignBeacon(b0816);
-        String roomForB0815 = b0815.getRoomName();
-        assertTrue(roomForB0815.equals("S012"));
-        String roomForB0816 = b0816.getRoomName();
-        assertTrue(roomForB0815.equals(roomForB0816));
-        s011.assignBeacon(b0815);
-        roomForB0815 = b0815.getRoomName();
-        assertFalse(roomForB0815.equals(roomForB0816));
+        SbRoom s012 = SbFactory.findOrCreateSbRoom("S012", "Office Reinhard Herzog");
+        SbBeacon b012 = SbFactory.findOrCreateSbBeacon("1y0N", "Office hzg");
+        b012.setIBeaconId("f7826da6-4fa2-4e98-8024-bc5b71e0893e", "2970", "10793");
+        s012.assignBeacon(b012);
 
+        SbRoom s015 = SbFactory.findOrCreateSbRoom("S015", "HIWI Team Room");
+        SbBeacon b015 = SbFactory.findOrCreateSbBeacon("S015", "HIWI Team Room");
+        b015.setIBeaconId("f7826da6-4fa2-4e98-8024-bc5b71e0893e", "1", "2");
+        s015.assignBeacon(b015);
+
+        SbRoom s011 = SbFactory.findOrCreateSbRoom("S011", "Office Hylke van der Schaaf");
+        SbBeacon b011 = SbFactory.findOrCreateSbBeacon("5PFJ", "Office scf");
+        b011.setIBeaconId("f7826da6-4fa2-4e98-8024-bc5b71e0893e", "46536", "41419");
+        s011.assignBeacon(b011);
+        
+        String roomForS011= b011.getRoomName();
+        assertTrue(roomForS011.equals("S011"));
+        
+        String roomForS015= b015.getRoomName();
+        assertTrue(roomForS015.equals("S015"));
     }
 }
