@@ -20,7 +20,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import ch.qos.logback.core.read.ListAppender;
 import de.fraunhofer.iosb.ilt.sta.ServiceFailureException;
 import de.fraunhofer.iosb.ilt.sta.model.Id;
 import de.fraunhofer.iosb.ilt.sta.model.Thing;
@@ -101,6 +100,7 @@ public class SbRoom {
 
     public List<SbBeacon> getAssignedBeacons() {
         List<SbBeacon> beaconNames = new ArrayList<>();
+        @SuppressWarnings("unchecked")
         List<Object> beaconObjects = (List<Object>) myThing.getProperties().get(SbFactory.TAG_TO_BEACONS_REF);
         for (Object o : beaconObjects) {
             Id id = Id.tryToParse(o.toString());
@@ -153,6 +153,7 @@ public class SbRoom {
     public void removeBeacon(Id id) {
         Map<String, Object> properties = myThing.getProperties();
         List<Object> newBeaconRefs = new ArrayList<>();
+        @SuppressWarnings("unchecked")
         List<Object> beaconRefs = (List<Object>) properties.get(SbFactory.TAG_TO_BEACONS_REF);
         if (beaconRefs == null) { // reference property has not been initialized
             beaconRefs = new ArrayList<>();

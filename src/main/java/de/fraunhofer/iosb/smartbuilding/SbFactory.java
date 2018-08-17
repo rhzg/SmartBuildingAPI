@@ -139,8 +139,8 @@ public class SbFactory {
     /**
      * Look up room thing by id and return facade object if found. Return null otherwise
      * 
-     * @param id
-     * @return
+     * @param   id for Thing representing SbRoom
+     * @return  SbRoom facade object 
      */
     public static SbRoom findRoom(Id id) {
         SbRoom r = roomCache.get(id.toString());
@@ -267,8 +267,13 @@ public class SbFactory {
         return beacon;
     }
 
-    /*
-     * find beacon if major and minor id is unique
+    /**
+     * Find beacon if major and minor id is unique, according to iBeacon protocol.
+     * 
+     * @param uuid      UUID
+     * @param major     Major id
+     * @param minor     Minor id
+     * @return          SbBeacon facade object, Null if not found of if service failure
      */
     public static SbBeacon findByBeaconIds(String uuid, String major, String minor) {
         SbBeacon beacon = null;
