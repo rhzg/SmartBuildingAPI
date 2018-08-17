@@ -28,6 +28,7 @@ import org.slf4j.LoggerFactory;
 
 import de.fraunhofer.iosb.ilt.sta.ServiceFailureException;
 import de.fraunhofer.iosb.ilt.sta.Utils;
+import de.fraunhofer.iosb.ilt.sta.dao.BaseDao;
 import de.fraunhofer.iosb.ilt.sta.model.Datastream;
 import de.fraunhofer.iosb.ilt.sta.model.Id;
 import de.fraunhofer.iosb.ilt.sta.model.Location;
@@ -120,6 +121,32 @@ public class SbFactory {
             try {
                 Thing t = service.things().query().filter("properties/type eq 'room' and name eq '" + name + "'")
                         .first();
+                if (t != null) {
+                    r = new SbRoom(service, t);
+                    roomCache.put(r.getName(), r);
+                    LOGGER.trace("room {} loaded", r.getName());
+                }
+            } catch (ServiceFailureException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        } else {
+            LOGGER.trace("room {} found in cache", r.getName());
+        }
+        return r;
+    }
+    
+    /**
+     * Look up room thing by id and return facade object if found. Return null otherwise
+     * 
+     * @param id
+     * @return
+     */
+    public static SbRoom findRoom(Id id) {
+        SbRoom r = roomCache.get(id.toString());
+        if (r == null) {
+            try {
+                Thing t = service.things().find(id);
                 if (t != null) {
                     r = new SbRoom(service, t);
                     roomCache.put(r.getName(), r);
@@ -253,7 +280,9 @@ public class SbFactory {
         }
         if (beacon == null) {
             String filter;
-            filter = "properties/" + SbFactory.TAG_MAJOR_ID + " eq '" + major + "' and properties/" + SbFactory.TAG_MINOR_ID + " eq '" + minor + "' and properties/" + SbFactory.TAG_UUID_ID + " eq '" + uuid + "'";
+            filter = "properties/" + SbFactory.TAG_MAJOR_ID + " eq '" + major + "' and properties/"
+                    + SbFactory.TAG_MINOR_ID + " eq '" + minor + "' and properties/" + SbFactory.TAG_UUID_ID + " eq '"
+                    + uuid + "'";
             EntityList<Thing> thingList;
             try {
                 thingList = service.things().query().filter(filter).list();
@@ -317,6 +346,18 @@ public class SbFactory {
             LOGGER.trace("BLE uuid:{} found in cache", uuid);
         }
         return beacon;
+    }
+
+    public static void removeThing(Thing thingToRemove) {
+        String deletedObjectName;
+        deletedObjectName = thingToRemove.getName();
+        try {
+            service.delete(thingToRemove);
+        } catch (ServiceFailureException e) {
+            e.printStackTrace();
+        }
+        LOGGER.trace("Thing {} deleted", deletedObjectName);
+        
     }
 
     // ***************************************************************************

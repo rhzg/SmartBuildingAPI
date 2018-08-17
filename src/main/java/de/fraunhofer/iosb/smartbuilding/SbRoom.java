@@ -106,7 +106,7 @@ public class SbRoom {
             Id id = Id.tryToParse(o.toString());
             SbBeacon b = SbFactory.findBeacon(id);
             if (b != null) {
-                beaconNames.add(b);                
+                beaconNames.add(b);
             }
         }
         return beaconNames;
@@ -143,6 +143,32 @@ public class SbRoom {
                 }
             }
             beacon.assignRoom(getName());
+        }
+    }
+
+    public void removeFromServer() {
+        SbFactory.removeThing(myThing);
+    }
+
+    public void removeBeacon(Id id) {
+        Map<String, Object> properties = myThing.getProperties();
+        List<Object> newBeaconRefs = new ArrayList<>();
+        List<Object> beaconRefs = (List<Object>) properties.get(SbFactory.TAG_TO_BEACONS_REF);
+        if (beaconRefs == null) { // reference property has not been initialized
+            beaconRefs = new ArrayList<>();
+        }
+        for (Object o : beaconRefs) {
+            Id beaconId = Id.tryToParse(o.toString());
+            if (!id.equals(beaconId)) {
+                newBeaconRefs.add(o);
+            }
+        }
+        properties.put(SbFactory.TAG_TO_BEACONS_REF, newBeaconRefs);
+        myThing.setProperties(properties);
+        try {
+            myService.update(myThing);
+        } catch (ServiceFailureException e) {
+            e.printStackTrace();
         }
     }
 }

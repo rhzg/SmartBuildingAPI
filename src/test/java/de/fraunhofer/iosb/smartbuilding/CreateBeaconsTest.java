@@ -35,8 +35,7 @@ public class CreateBeaconsTest {
         s012.assignBeacon(b012);
 
         SbRoom s015 = SbFactory.findOrCreateSbRoom("S015", "HIWI Team Room");
-        SbBeacon b015 = SbFactory.findOrCreateSbBeacon("S015", "HIWI Team Room");
-        b015.setIBeaconId("f7826da6-4fa2-4e98-8024-bc5b71e0893e", "1", "2");
+        SbBeacon b015 = SbFactory.findOrCreateSbBeacon("GlJA", "", "f7826da6-4fa2-4e98-8024-bc5b71e0893e", "44933", "46799");
         s015.assignBeacon(b015);
 
         SbRoom s011 = SbFactory.findOrCreateSbRoom("S011", "Office Hylke van der Schaaf");
@@ -55,7 +54,6 @@ public class CreateBeaconsTest {
         SbFactory.findOrCreateSbBeacon("9FaU", "", "f7826da6-4fa2-4e98-8024-bc5b71e0893e", "43491", "28011");
         SbFactory.findOrCreateSbBeacon("TCZg", "", "f7826da6-4fa2-4e98-8024-bc5b71e0893e", "56842", "7917");
         SbFactory.findOrCreateSbBeacon("1EcF", "", "f7826da6-4fa2-4e98-8024-bc5b71e0893e", "29297", "19811");
-        SbFactory.findOrCreateSbBeacon("GlJA", "", "f7826da6-4fa2-4e98-8024-bc5b71e0893e", "44933", "46799");
         SbFactory.findOrCreateSbBeacon("E6Q5", "", "f7826da6-4fa2-4e98-8024-bc5b71e0893e", "25904", "43027");
         SbFactory.findOrCreateSbBeacon("XrxW", "", "f7826da6-4fa2-4e98-8024-bc5b71e0893e", "65085", "35435");
         SbFactory.findOrCreateSbBeacon("8ACi", "", "f7826da6-4fa2-4e98-8024-bc5b71e0893e", "55692", "22904");

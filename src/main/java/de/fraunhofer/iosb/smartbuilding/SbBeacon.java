@@ -107,6 +107,10 @@ public class SbBeacon {
         }
    }
 
+    /*
+     * assign given room with @param roomName to beacon. Room and beacon object must exist. 
+     * Beacons can only be assigned to one room. Existing references will be removed.
+     */
     public void assignRoom(String roomName) {
         myRoom = SbFactory.findRoom(roomName);
         Map<String, Object> properties = myBeaconThing.getProperties();
@@ -114,6 +118,12 @@ public class SbBeacon {
         Id assignedRoom = null;
         if (roomRef != null) {
             assignedRoom = Id.tryToParse(roomRef.toString());
+        }
+
+        if ((assignedRoom != null) && (!assignedRoom.equals(myRoom.getMyThing().getId()))) {
+            // beacon has been assigned to to other room and must be remove before being reassigned 
+            SbRoom oldRoom = SbFactory.findRoom(assignedRoom);
+            oldRoom.removeBeacon(getId());
         }
 
         if ((assignedRoom == null) || (!assignedRoom.equals(myRoom.getMyThing().getId()))) {
@@ -154,5 +164,9 @@ public class SbBeacon {
 
     public void setProximityDatastream(Datastream ds) {
         batteryDatastream = ds;
+    }
+    
+    public void removeFromServer() {
+        SbFactory.removeThing(myBeaconThing);
     }
 }
