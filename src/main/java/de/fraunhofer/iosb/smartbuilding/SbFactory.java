@@ -184,6 +184,32 @@ public class SbFactory {
         }
         return b;
     }
+    
+    /*
+     * Beacon lookup by ID
+     * params
+     * String id
+     */
+    public static SbBeacon findBeacon(String id) {
+//        SbBeacon b = beaconCache.get(id);
+    	SbBeacon b = null;
+        if (b == null) {
+            try {
+                Thing t = service.things().find(id);
+                if (t != null) {
+                    b = new SbBeacon(service, t);
+                    beaconCache.put(b.getName(), b);
+                    LOGGER.trace("beacon {} loaded", b.getName());
+                }
+            } catch (ServiceFailureException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        } else {
+            LOGGER.trace("beacon {} found in cache", b.getName());
+        }
+        return b;
+    }
 
     /*
      * look up a room thing from service. Creates new room thing if not found.
