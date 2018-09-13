@@ -303,12 +303,12 @@ public class SbFactory {
                 thing = thingList.iterator().next();
                 beacon = new SbBeacon(service, thing);
                 beaconCache.put(beacon.getName(), beacon);
-                LOGGER.trace("BLE major:{}, minor:{} loaded", major, minor);
+                LOGGER.trace("BLE uuid: {}, major:{}, minor:{} loaded", uuid, major, minor);
             } else {
-                LOGGER.trace("BLE major:{}, minor:{} not found", major, minor);
+                LOGGER.trace("BLE uuid: {}, major:{}, minor:{} not found", uuid, major, minor);
             }
         } else {
-            LOGGER.trace("BLE major:{}, minor:{} found in cache", major, minor);
+            LOGGER.trace("BLE uuid: {}, major:{}, minor:{} found in cache", uuid, major, minor);
 
         }
         return beacon;

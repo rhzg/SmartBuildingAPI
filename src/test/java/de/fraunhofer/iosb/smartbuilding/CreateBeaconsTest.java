@@ -39,10 +39,15 @@ public class CreateBeaconsTest {
         s015.assignBeacon(b015);
 
         SbRoom s011 = SbFactory.findOrCreateSbRoom("S011", "Office Hylke van der Schaaf");
-        SbBeacon b011 = SbFactory.findOrCreateSbBeacon("5PFJ", "Office scf");
+        SbBeacon b011 = SbFactory.findOrCreateSbBeacon("1EcF", "", "f7826da6-4fa2-4e98-8024-bc5b71e0893e", "29297", "19811");
+// broken        SbBeacon b011 = SbFactory.findOrCreateSbBeacon("5PFJ", "Office scf");
         b011.setIBeaconId("f7826da6-4fa2-4e98-8024-bc5b71e0893e", "46536", "41419");
         s011.assignBeacon(b011);
 
+        SbRoom s014 = SbFactory.findOrCreateSbRoom("S014", "Office Michael Jacoby");
+        SbBeacon b014 = SbFactory.findOrCreateSbBeacon("E6Q5", "", "f7826da6-4fa2-4e98-8024-bc5b71e0893e", "25904", "43027");
+        s014.assignBeacon(b014);
+        
         SbFactory.findOrCreateSbBeacon("KmKt", "", "f7826da6-4fa2-4e98-8024-bc5b71e0893e", "30464", "56999");
         SbFactory.findOrCreateSbBeacon("omjb", "", "f7826da6-4fa2-4e98-8024-bc5b71e0893e", "5249", "12232");
         SbFactory.findOrCreateSbBeacon("jW74", "", "f7826da6-4fa2-4e98-8024-bc5b71e0893e", "3683", "53063");
@@ -53,8 +58,6 @@ public class CreateBeaconsTest {
         SbFactory.findOrCreateSbBeacon("iG3x", "", "f7826da6-4fa2-4e98-8024-bc5b71e0893e", "49015", "1076");
         SbFactory.findOrCreateSbBeacon("9FaU", "", "f7826da6-4fa2-4e98-8024-bc5b71e0893e", "43491", "28011");
         SbFactory.findOrCreateSbBeacon("TCZg", "", "f7826da6-4fa2-4e98-8024-bc5b71e0893e", "56842", "7917");
-        SbFactory.findOrCreateSbBeacon("1EcF", "", "f7826da6-4fa2-4e98-8024-bc5b71e0893e", "29297", "19811");
-        SbFactory.findOrCreateSbBeacon("E6Q5", "", "f7826da6-4fa2-4e98-8024-bc5b71e0893e", "25904", "43027");
         SbFactory.findOrCreateSbBeacon("XrxW", "", "f7826da6-4fa2-4e98-8024-bc5b71e0893e", "65085", "35435");
         SbFactory.findOrCreateSbBeacon("8ACi", "", "f7826da6-4fa2-4e98-8024-bc5b71e0893e", "55692", "22904");
         SbFactory.findOrCreateSbBeacon("Q8dr", "", "f7826da6-4fa2-4e98-8024-bc5b71e0893e", "55542", "14675");
