@@ -133,7 +133,7 @@ public class SbBeacon {
         	System.err.println("assigned room isnt null");
         
 
-        if ((assignedRoom != null) || (!assignedRoom.equals(myRoom.getMyThing().getId()))) {
+        if ((assignedRoom == null) || (!assignedRoom.equals(myRoom.getMyThing().getId()))) {
             properties.put(SbFactory.TAG_TO_ROOM_REF, myRoom.getMyThing().getId());
             myBeaconThing.setProperties(properties);
             try {
