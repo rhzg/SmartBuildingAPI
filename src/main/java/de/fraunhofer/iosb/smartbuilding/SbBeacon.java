@@ -41,6 +41,13 @@ public class SbBeacon {
         myRoom = null;
         myBeaconThing = thing;
         myService = service;
+        
+        Map<String, Object> properties = myBeaconThing.getProperties();
+        Object roomRef = properties.get(SbFactory.TAG_TO_ROOM_REF);
+        if (roomRef != null) {
+            Id assignedRoom = Id.tryToParse(roomRef.toString());
+            myRoom = SbFactory.findRoom(assignedRoom);
+        }
     }
 
     public String toString() {
@@ -112,8 +119,6 @@ public class SbBeacon {
     public void assignRoom(String roomName) {
         myRoom = SbFactory.findRoom(roomName);
         
-        System.err.println("assignRoom has provided " + myRoom.getName());
-        
         Map<String, Object> properties = myBeaconThing.getProperties();
         Object roomRef = properties.get(SbFactory.TAG_TO_ROOM_REF);
         Id assignedRoom = null;
@@ -127,12 +132,6 @@ public class SbBeacon {
             oldRoom.removeBeacon(getId());
         }
         
-        if (assignedRoom == null)
-        	System.err.println("assigned room is null");
-        else
-        	System.err.println("assigned room isnt null");
-        
-
         if ((assignedRoom == null) || (!assignedRoom.equals(myRoom.getMyThing().getId()))) {
             properties.put(SbFactory.TAG_TO_ROOM_REF, myRoom.getMyThing().getId());
             myBeaconThing.setProperties(properties);

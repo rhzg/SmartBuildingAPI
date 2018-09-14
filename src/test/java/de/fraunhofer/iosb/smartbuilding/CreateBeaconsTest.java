@@ -35,17 +35,17 @@ public class CreateBeaconsTest {
         s012.assignBeacon(b012);
 
         SbRoom s015 = SbFactory.findOrCreateSbRoom("S015", "HIWI Team Room");
-        SbBeacon b015 = SbFactory.findOrCreateSbBeacon("GlJA", "", "f7826da6-4fa2-4e98-8024-bc5b71e0893e", "44933", "46799");
+        SbBeacon b015 = SbFactory.findOrCreateSbBeacon("GlJA", "HIWI Team Room", "f7826da6-4fa2-4e98-8024-bc5b71e0893e", "44933", "46799");
         s015.assignBeacon(b015);
 
         SbRoom s011 = SbFactory.findOrCreateSbRoom("S011", "Office Hylke van der Schaaf");
-        SbBeacon b011 = SbFactory.findOrCreateSbBeacon("1EcF", "", "f7826da6-4fa2-4e98-8024-bc5b71e0893e", "29297", "19811");
+        SbBeacon b011 = SbFactory.findOrCreateSbBeacon("1EcF", "Office Hylke van der Schaaf", "f7826da6-4fa2-4e98-8024-bc5b71e0893e", "29297", "19811");
 // broken        SbBeacon b011 = SbFactory.findOrCreateSbBeacon("5PFJ", "Office scf");
         b011.setIBeaconId("f7826da6-4fa2-4e98-8024-bc5b71e0893e", "46536", "41419");
         s011.assignBeacon(b011);
 
         SbRoom s014 = SbFactory.findOrCreateSbRoom("S014", "Office Michael Jacoby");
-        SbBeacon b014 = SbFactory.findOrCreateSbBeacon("E6Q5", "", "f7826da6-4fa2-4e98-8024-bc5b71e0893e", "25904", "43027");
+        SbBeacon b014 = SbFactory.findOrCreateSbBeacon("E6Q5", "Office Michael Jacoby", "f7826da6-4fa2-4e98-8024-bc5b71e0893e", "25904", "43027");
         s014.assignBeacon(b014);
         
         SbFactory.findOrCreateSbBeacon("KmKt", "", "f7826da6-4fa2-4e98-8024-bc5b71e0893e", "30464", "56999");
