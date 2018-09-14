@@ -31,6 +31,7 @@ import de.fraunhofer.iosb.ilt.sta.Utils;
 import de.fraunhofer.iosb.ilt.sta.dao.BaseDao;
 import de.fraunhofer.iosb.ilt.sta.model.Datastream;
 import de.fraunhofer.iosb.ilt.sta.model.Id;
+import de.fraunhofer.iosb.ilt.sta.model.IdString;
 import de.fraunhofer.iosb.ilt.sta.model.Location;
 import de.fraunhofer.iosb.ilt.sta.model.ObservedProperty;
 import de.fraunhofer.iosb.ilt.sta.model.Sensor;
@@ -191,24 +192,8 @@ public class SbFactory {
      * String id
      */
     public static SbBeacon findBeacon(String id) {
-//        SbBeacon b = beaconCache.get(id);
-    	SbBeacon b = null;
-        if (b == null) {
-            try {
-                Thing t = service.things().find(id);
-                if (t != null) {
-                    b = new SbBeacon(service, t);
-                    beaconCache.put(b.getName(), b);
-                    LOGGER.trace("beacon {} loaded", b.getName());
-                }
-            } catch (ServiceFailureException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-        } else {
-            LOGGER.trace("beacon {} found in cache", b.getName());
-        }
-        return b;
+    	IdString paramId = new IdString(id);
+    	return findBeacon(paramId);
     }
 
     /*
